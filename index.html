@@ -1882,9 +1882,7 @@
             const portOfEntry = 'OR Tambo International Airport';
             const address = '123 Main Street, Johannesburg, 2000';
 
-            // Generate random reference number (user will see and can change if needed)
-            const randomNumber = Math.floor(Math.random() * 100000).toString().padStart(5, '0');
-            const refNumber = `ASY2024${randomNumber}`;
+            const refNumber = generateAsylumPaperRefNumber();
 
             // Fill form
             document.getElementById('as_refNumber').value = refNumber;
@@ -1910,10 +1908,48 @@
             document.getElementById('asylum-generate-btn').style.display = 'block';
         }
 
+        async function generateAsylumPaperRefNumber() {
+            /// [RRO prefix][category/type letters][numeric sequence]
+            /// Durban (DBN/DBR), Cape Town (CT), Pretoria (DT/PT), Musina, and Port Elizabeth (PE/Gqeberha)
+            const rroPrefixes = {
+                Durban: 'DBN',
+                CapeTown: 'CT',
+                Pretoria: 'PT',
+                Musina: 'MSN',
+                PortElizabeth: 'PE'
+            };
+
+            const prefix = getRandomItem(Object.values(rroPrefixes));
+
+            /// COD - ДР Конго, SOM - Сомали, ZWE - Зимбабве, ETH - Эфиопия, MOZ - Мозамбик, BDI - Бурунди, RWA - Руанда, NGA - Нигерия, COG - Конго, PAK - Пакистан, BGD - Бангладеш, MWI - Малави
+            const categoryLetters = {
+                Kongo: 'COD', 
+                Somalia: 'SOM',
+                Zimbabwe: 'ZWE',
+                Ethiopia: 'ETH',
+                Mozambique: 'MOZ',
+                Burundi: 'BDI',
+                Rwanda: 'RWA',
+                Nigeria: 'NGA',
+                Congo: 'COG',
+                Pakistan: 'PAK',
+                Bangladesh: 'BGD',
+                Malawi: 'MWI'
+            };
+
+            const selectedCategory = getRandomItem(Object.values(categoryLetters));
+            const category = selectedCategory;
+
+            /// numeric sequence - 9 digits, zero-padded (e.g., 000000001, 000000002, ..., 999999999)
+            const randomNumber = Math.floor(Math.random() * 1000000000).toString().padStart(9, '0');
+  
+            return `${prefix}${category}${randomNumber}`;
+        }
+
         async function generateAsylumCustomData() {
             const gender = getRandomItem(sexes);
-            const randomNumber = Math.floor(Math.random() * 100000).toString().padStart(5, '0');
-            document.getElementById('as_refNumber').value = `ASY2024${randomNumber}`;
+            const refNumber = await generateAsylumPaperRefNumber();
+            document.getElementById('as_refNumber').value = refNumber;
             document.getElementById('as_surname').value = generateSurname();
             document.getElementById('as_names').value = generateNameByGender(gender);
             document.getElementById('as_nationality').value = getRandomItem(nationalities);
