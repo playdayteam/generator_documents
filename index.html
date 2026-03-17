@@ -1882,9 +1882,7 @@
             const portOfEntry = 'OR Tambo International Airport';
             const address = '123 Main Street, Johannesburg, 2000';
 
-            // Generate random reference number (user will see and can change if needed)
-            const randomNumber = Math.floor(Math.random() * 100000).toString().padStart(5, '0');
-            const refNumber = `ASY2024${randomNumber}`;
+            const refNumber = generateAsylumPaperRefNumber();
 
             // Fill form
             document.getElementById('as_refNumber').value = refNumber;
@@ -1910,10 +1908,48 @@
             document.getElementById('asylum-generate-btn').style.display = 'block';
         }
 
+        async function generateAsylumPaperRefNumber() {
+            /// [RRO prefix][category/type letters][numeric sequence]
+            /// Durban (DBN/DBR), Cape Town (CT), Pretoria (DT/PT), Musina, and Port Elizabeth (PE/Gqeberha)
+            const rroPrefixes = {
+                Durban: 'DBN',
+                CapeTown: 'CT',
+                Pretoria: 'PT',
+                Musina: 'MSN',
+                PortElizabeth: 'PE'
+            };
+
+            const prefix = getRandomItem(Object.values(rroPrefixes));
+
+            /// COD - ДР Конго, SOM - Сомали, ZWE - Зимбабве, ETH - Эфиопия, MOZ - Мозамбик, BDI - Бурунди, RWA - Руанда, NGA - Нигерия, COG - Конго, PAK - Пакистан, BGD - Бангладеш, MWI - Малави
+            const categoryLetters = {
+                Kongo: 'COD', 
+                Somalia: 'SOM',
+                Zimbabwe: 'ZWE',
+                Ethiopia: 'ETH',
+                Mozambique: 'MOZ',
+                Burundi: 'BDI',
+                Rwanda: 'RWA',
+                Nigeria: 'NGA',
+                Congo: 'COG',
+                Pakistan: 'PAK',
+                Bangladesh: 'BGD',
+                Malawi: 'MWI'
+            };
+
+            const selectedCategory = getRandomItem(Object.values(categoryLetters));
+            const category = selectedCategory;
+
+            /// numeric sequence - 9 digits, zero-padded (e.g., 000000001, 000000002, ..., 999999999)
+            const randomNumber = Math.floor(Math.random() * 1000000000).toString().padStart(9, '0');
+  
+            return `${prefix}${category}${randomNumber}`;
+        }
+
         async function generateAsylumCustomData() {
             const gender = getRandomItem(sexes);
-            const randomNumber = Math.floor(Math.random() * 100000).toString().padStart(5, '0');
-            document.getElementById('as_refNumber').value = `ASY2024${randomNumber}`;
+            const refNumber = await generateAsylumPaperRefNumber();
+            document.getElementById('as_refNumber').value = refNumber;
             document.getElementById('as_surname').value = generateSurname();
             document.getElementById('as_names').value = generateNameByGender(gender);
             document.getElementById('as_nationality').value = getRandomItem(nationalities);
@@ -2049,12 +2085,11 @@
             document.getElementById('id_cardSurname').textContent = surname.toUpperCase();
             document.getElementById('id_cardNames').textContent = names.toUpperCase();
             document.getElementById('id_cardSex').textContent = sex;
-            document.getElementById('id_cardDob').textContent = new Date(dob).toLocaleDateString('en-ZA');
+            document.getElementById('id_cardDob').textContent = convertDateToSlashSeparated(dob);
             document.getElementById('id_cardNationality').textContent = nationality;
             document.getElementById('id_cardCountry').textContent = country;
             document.getElementById('id_cardStatus').textContent = status;
             document.getElementById('id_cardPhoto').src = idPhotoData;
-            document.getElementById('id_issueDate').textContent = new Date().toLocaleDateString('en-ZA');
 
             document.getElementById('id-output').style.display = 'block';
             document.getElementById('id-download-btn').style.display = 'block';
@@ -2096,11 +2131,11 @@
             document.getElementById('pp_cardSurname').textContent = surname.toUpperCase();
             document.getElementById('pp_cardNames').textContent = names.toUpperCase();
             document.getElementById('pp_cardNationality').textContent = nationality.toUpperCase();
-            document.getElementById('pp_cardDob').textContent = new Date(dob).toLocaleDateString('en-GB');
+            document.getElementById('pp_cardDob').textContent = convertDateToSlashSeparated(dob);
             document.getElementById('pp_cardPob').textContent = pob_code.toUpperCase();
             document.getElementById('pp_cardSex').textContent = sex;
-            document.getElementById('pp_cardIssue').textContent = new Date(issue).toLocaleDateString('en-GB');
-            document.getElementById('pp_cardExpiry').textContent = new Date(expiry).toLocaleDateString('en-GB');
+            document.getElementById('pp_cardIssue').textContent = convertDateToSlashSeparated(issue);
+            document.getElementById('pp_cardExpiry').textContent = convertDateToSlashSeparated(expiry);
             document.getElementById('pp_cardAuthority').textContent = authority.toUpperCase();
             document.getElementById('pp_cardPhoto').src = passportPhotoData;
             document.getElementById('pp_cardCountry').textContent = countryCode.toUpperCase();
@@ -2154,15 +2189,15 @@
             document.getElementById('as_cardSurname').textContent = surname.toUpperCase();
             document.getElementById('as_cardNames').textContent = names.toUpperCase();
             document.getElementById('as_cardNationality').textContent = nationality.toUpperCase();
-            document.getElementById('as_cardDob').textContent = new Date(dob).toLocaleDateString('en-ZA');
+            document.getElementById('as_cardDob').textContent = convertDateToSlashSeparated(dob);
             document.getElementById('as_cardPob').textContent = pob.toUpperCase();
             document.getElementById('as_cardSex').textContent = sex;
             document.getElementById('as_cardPassportNo').textContent = passportNo || 'N/A';
-            document.getElementById('as_cardArrival').textContent = new Date(arrival).toLocaleDateString('en-ZA');
+            document.getElementById('as_cardArrival').textContent = convertDateToSlashSeparated(arrival);
             document.getElementById('as_cardPort').textContent = port.toUpperCase();
             document.getElementById('as_cardAddress').textContent = address;
-            document.getElementById('as_cardIssue').textContent = new Date(issueDate).toLocaleDateString('en-ZA');
-            document.getElementById('as_cardValid').textContent = new Date(validUntil).toLocaleDateString('en-ZA');
+            document.getElementById('as_cardIssue').textContent = convertDateToSlashSeparated(issueDate);
+            document.getElementById('as_cardValid').textContent = convertDateToSlashSeparated(validUntil);
             document.getElementById('as_cardPhoto').src = asylumPhotoData;
 
             document.getElementById('asylum-output').style.display = 'block';
@@ -2174,6 +2209,11 @@
             }
 
             document.getElementById('asylum-output').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Fix format date to avoid timezone issues
+        function convertDateToSlashSeparated(dateString) {
+            return dateString.split('-').join('/');
         }
 
         // Download face photo file
