@@ -1882,7 +1882,7 @@
             const portOfEntry = 'OR Tambo International Airport';
             const address = '123 Main Street, Johannesburg, 2000';
 
-            const refNumber = generateAsylumPaperRefNumber();
+            const refNumber = await generateAsylumPaperRefNumber();
 
             // Fill form
             document.getElementById('as_refNumber').value = refNumber;
